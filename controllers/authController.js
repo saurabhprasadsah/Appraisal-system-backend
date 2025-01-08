@@ -105,8 +105,6 @@ const authController = {
 
   logout: async (req, res, next) => {
     try {
-      // Since we're using JWT, we don't need to do anything server-side
-      // The client should remove the token
       res.json({
         success: true,
         message: 'Logged out successfully'

@@ -13,6 +13,7 @@ router.delete('/:id', auth, checkRole(['admin']), userController.deleteUser);
 // // Additional routes for userRoutes.js
 router.get('/role/:role', auth, checkRole(['admin']), userController.getUsersByRole);
 // router.get('/stats', auth, checkRole(['admin']), userController.getUserStats);
+
 router.patch('/:id/deactivate', auth, checkRole(['admin']), userController.deactivateUser);
 router.patch('/:id/reactivate', auth, checkRole(['admin']), userController.reactivateUser);
 

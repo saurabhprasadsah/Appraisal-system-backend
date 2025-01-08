@@ -1,7 +1,6 @@
 const Joi = require('joi');
 
 const validations = {
-  // User validation schemas
   registerUser: Joi.object({
     name: Joi.string().required().min(2).max(50),
     email: Joi.string().required().email(),
@@ -20,7 +19,6 @@ const validations = {
     password: Joi.string().required()
   }),
 
-  // Question validation schemas
   createQuestion: Joi.object({
     text: Joi.string().required().min(10).max(500),
     type: Joi.string().required().valid('rating', 'text', 'multiChoice'),
@@ -32,7 +30,6 @@ const validations = {
     isActive: Joi.boolean()
   }),
 
-  // Mapping validation schemas
   createMapping: Joi.object({
     participant: Joi.string().required().hex().length(24),
     supervisor: Joi.string().required().hex().length(24),
@@ -40,7 +37,6 @@ const validations = {
     juniors: Joi.array().items(Joi.string().hex().length(24))
   }),
 
-  // Appraisal validation schemas
   createAppraisal: Joi.object({
     participant: Joi.string().required().hex().length(24),
     reviewer: Joi.string().required().hex().length(24),
@@ -81,10 +77,8 @@ const validate = (schema) => {
   };
 };
 
-// Sanitization middleware
 const sanitizeData = (req, res, next) => {
   if (req.body) {
-    // Remove any potential NoSQL injection characters
     Object.keys(req.body).forEach(key => {
       if (typeof req.body[key] === 'string') {
         req.body[key] = req.body[key].replace(/[${}()]/g, '');
@@ -94,7 +88,7 @@ const sanitizeData = (req, res, next) => {
   next();
 };
 
-// XSS Prevention middleware
+
 const xssClean = (req, res, next) => {
   if (req.body) {
     Object.keys(req.body).forEach(key => {

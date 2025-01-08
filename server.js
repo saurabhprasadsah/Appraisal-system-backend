@@ -8,17 +8,15 @@ const config = require('./config/config');
 const { globalErrorHandler } = require('./utils/errorHandler');
 
 const app = express();
-
-// Connect Database
 connectDB();
 
-// Security Middleware
+
 app.use(helmet());
 app.use(cors());
 app.use(limiter);
-app.use(express.json({ limit: '10kb' })); // Limit body size
+app.use(express.json({ limit: '10kb' })); 
 
-// Routes
+// Routes for api
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/appraisals', require('./routes/appraisalRoutes'));
@@ -30,7 +28,6 @@ app.use('/api/questions', require('./routes/questionRoutes'));
 
 const PORT = config.PORT || 5000;
 
-// Start the server and assign it to a variable
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
