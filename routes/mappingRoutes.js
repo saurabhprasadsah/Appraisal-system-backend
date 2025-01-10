@@ -1,17 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const {
-  createMapping,
-  getParticipantMapping,
-  updateMapping,
-  deleteMapping
-} = require('../controllers/mappingController');
+const mappingController = require('../controllers/mappingController');
 const auth = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+const toValidateUsers=require('../middleware/toValidateUsers.js');
+// Route to create a new mapping (Admin only)
+router.post('/', auth, authorize(['admin']), toValidateUsers, mappingController.createMapping);
 
-// Define routes
-router.post('/', auth, createMapping);
-router.get('/:participantId', auth, getParticipantMapping);
-router.put('/:participantId', auth, updateMapping);
-router.delete('/:participantId', auth, deleteMapping);
+// Route to fetch mappings for a participant
+router.get('/get-participant-data', auth, mappingController.getMappings);
 
 module.exports = router;

@@ -1,18 +1,16 @@
 const jwt = require('jsonwebtoken');
 const { AppError } = require('../utils/errorHandler');
+const config = require('../config/config');
 
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return next(new AppError('Authorization required', 401));
+
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      throw new AppError('No auth token, access denied', 401);
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
-    next(new AppError('Invalid token, access denied', 401));
+    next(new AppError('Invalid token', 401));
   }
 };

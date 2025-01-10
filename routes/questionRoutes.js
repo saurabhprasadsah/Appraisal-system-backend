@@ -1,18 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const {
-  createQuestion,
-  getAllQuestions,
-  getQuestionById,
-  updateQuestion,
-  deleteQuestion
-} = require('../controllers/questionController');
+const questionController = require('../controllers/questionController');
 const auth = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
-router.post('/', auth, createQuestion);
-router.get('/', auth, getAllQuestions);
-router.get('/:id', auth, getQuestionById);
-router.put('/:id', auth, updateQuestion);
-router.delete('/:id', auth, deleteQuestion);
+// Create a new question (Admin only)
+router.post('/', auth, authorize(['admin']), questionController.createQuestion);
+
+// Get all active questions
+router.get('/', auth, questionController.getQuestions);
 
 module.exports = router;

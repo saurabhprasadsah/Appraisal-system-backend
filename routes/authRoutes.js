@@ -1,39 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { validate, validations, sanitizeData, xssClean } = require('../utils/validation');
 const auth = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
 
-// Register route
-router.post(
-  '/register',
-  sanitizeData,
-  xssClean,
-  validate(validations.registerUser),
-  authController.register
-);
+// Route to create the first admin
+router.post('/create-admin', authController.createAdmin);
 
+// Register route (Admin only)
+router.post('/register', auth, authorize(['admin']), authController.register);
 // Login route
-router.post(
-  '/login',
-  sanitizeData,
-  xssClean,
-  validate(validations.login),
-  authController.login
-);
-
-// Get current user route
-router.get(
-  '/user',
-  auth,
-  authController.getUser
-);
-
-// Logout route
-router.get(
-  '/logout',
-  auth,
-  authController.logout
-);
+router.post('/login', authController.login);
+// Get current user
+router.get('/user', auth, authController.getUser);
 
 module.exports = router;

@@ -1,13 +1,17 @@
-// utils/errorHandler.js
-
 class AppError extends Error {
-    constructor(message, statusCode) {
-      super(message);
-      this.statusCode = statusCode;
-      this.isOperational = true; // Marks it as operational error
-      Error.captureStackTrace(this, this.constructor);
-    }
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
   }
-  
-  module.exports = { AppError };
-  
+}
+
+const globalErrorHandler = (err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(statusCode).json({ error: message });
+};
+
+module.exports = {
+  AppError,
+  globalErrorHandler,
+};

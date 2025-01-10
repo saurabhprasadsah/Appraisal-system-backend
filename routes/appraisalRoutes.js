@@ -2,33 +2,18 @@ const express = require('express');
 const router = express.Router();
 const appraisalController = require('../controllers/appraisalController');
 const auth = require('../middleware/auth');
-const { validate, validations } = require('../utils/validation');
+const authorize = require('../middleware/authorize');
 
-// Define routes with proper middleware and controller functions
-router.post('/',
-  auth,
-  validate(validations.createAppraisal),
-  appraisalController.createAppraisal
-);
+// Create a new appraisal
+router.post('/', auth, appraisalController.createAppraisal);
 
-router.get('/participant/:id',
-  auth,
-  appraisalController.getParticipantAppraisals
-);
+// Get appraisals for a participant (Admin and Supervisor)
+router.get('/participant/:participantId', auth, authorize(['admin', 'supervisor']), appraisalController.getAppraisalsForParticipant);
 
-router.get('/reviewer/:id',
-  auth,
-  appraisalController.getReviewerAppraisals
-);
+// Get appraisals for a reviewer
+router.get('/reviewer/:reviewerId', auth, appraisalController.getAppraisalsForReviewer);
 
-router.put('/:id',
-  auth,
-  appraisalController.updateAppraisal
-);
-
-router.get('/:id',
-  auth,
-  appraisalController.getAppraisal
-);
+// Update appraisal
+router.put('/:id', auth, appraisalController.updateAppraisal);
 
 module.exports = router;

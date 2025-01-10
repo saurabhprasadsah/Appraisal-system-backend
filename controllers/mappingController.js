@@ -1,88 +1,57 @@
-const Mapping = require('../models/Mapping');
-const User = require('../models/User');
-const { AppError } = require('../utils/errorHandler');
+const { createMapping, getMappingsByParticipant } = require('../services/mappingService');
+const jwt = require('jsonwebtoken')
+const { User } = require('../models/User');
+const { Mapping } = require('../models/Mapping')
+const mappingController = {
+  // Controller to create a mapping
+  createMapping: async (req, res, next) => {
+    try {
+      // Ensure only admin can create mappings
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Only admins can create mappings.' });
+      }
 
-exports.createMapping = async (req, res, next) => {
-  try {
-    const { participant, supervisor, peers, juniors } = req.body;
+      const mapping = await createMapping({
+        participant: req.body.participantId,
+        supervisor: req.body.supervisorId,
+        juniors: req.body.juniorsId,
+        peers: req.body.peersId,
+      });
 
-    const supervisorUser = await User.findById(supervisor);
-    if (!supervisorUser || supervisorUser.role !== 'supervisor') {
-      throw new AppError('Invalid supervisor', 400);
+      await mapping.save();
+
+      res.status(201).json({
+        success: true,
+        message: 'Mapping created successfully.',
+        mapping,
+      });
+    } catch (error) {
+      next(error);
     }
+  },
 
-    const existingMapping = await Mapping.findOne({ participant });
-    if (existingMapping) {
-      throw new AppError('Mapping already exists for this participant', 400);
+  // Controller to fetch mappings for a participant
+  getMappings: async (req, res, next) => {
+
+    try {
+
+      const token = req.headers.authorization?.split(' ')[1];
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+      //fetching user details
+      const user = await User.findById({ _id: verified.id });
+
+      if (user.role !== 'participant') res.status(400).json({ message: "You are not authorized" })
+      else {
+
+        const participantData = await Mapping.find({ participant: user._id });
+        // console.log(participantData);
+        res.status(200).json({ success: true, participantData });
+      }
+    } catch (error) {
+      res.status(400).json({ error })
     }
-
-    const mapping = await Mapping.create(req.body);
-    
-    res.status(201).json({
-      success: true,
-      data: mapping
-    });
-  } catch (error) {
-    next(error);
-  }
+  },
 };
 
-exports.getParticipantMapping = async (req, res, next) => {
-  try {
-    const mapping = await Mapping.findOne({ participant: req.params.participantId })
-      .populate('supervisor', 'name email')
-      .populate('peers', 'name email')
-      .populate('juniors', 'name email');
-
-    if (!mapping) {
-      throw new AppError('Mapping not found', 404);
-    }
-
-    res.json({
-      success: true,
-      data: mapping
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.updateMapping = async (req, res, next) => {
-  try {
-    const mapping = await Mapping.findOneAndUpdate(
-      { participant: req.params.participantId },
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!mapping) {
-      throw new AppError('Mapping not found', 404);
-    }
-
-    res.json({
-      success: true,
-      data: mapping
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.deleteMapping = async (req, res, next) => {
-  try {
-    const mapping = await Mapping.findOneAndDelete({ 
-      participant: req.params.participantId 
-    });
-
-    if (!mapping) {
-      throw new AppError('Mapping not found', 404);
-    }
-
-    res.json({
-      success: true,
-      data: {}
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+module.exports = mappingController;
