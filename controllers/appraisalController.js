@@ -1,7 +1,6 @@
-const Appraisal = require('../models/Appraisal'); // Adjust model path as needed
+const Appraisal = require('../models/Appraisal'); 
 
 const appraisalController = {
-  // Create new appraisal
   createAppraisal: async (req, res) => {
     try {
       const appraisal = new Appraisal(req.body);

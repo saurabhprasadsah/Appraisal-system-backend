@@ -1,27 +1,44 @@
-// models/Appraisal.js
+
 const mongoose = require('mongoose');
 
 const AppraisalSchema = new mongoose.Schema({
   participant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   reviewer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
+  type: {
+    type: String,
+    enum: ['self', 'supervisor', 'peer', 'junior'],
+    required: true,
+  },
+  answers: [
+    {
+      questionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Question',
+        required: true,
+      },
+      response: {
+        type: mongoose.Schema.Types.Mixed,
+        required: true,
+      },
+    },
+  ],
   status: {
     type: String,
-    required: true,
-    default: 'pending'
+    enum: ['pending', 'submitted', 'reviewed'],
+    default: 'pending',
   },
-  // Add other fields as needed
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model('Appraisal', AppraisalSchema);
+module.exports.Appraisal = mongoose.model('Appraisal', AppraisalSchema);

@@ -52,7 +52,6 @@ const authController = {
         throw new AppError('Account is locked. Try again later', 423);
       }
 
-      // Reset login attempts on successful login
       if (user.loginAttempts > 0) {
         await User.updateOne({ _id: user._id }, {
           $set: { loginAttempts: 0, lockUntil: null }
@@ -72,16 +71,16 @@ const authController = {
         }
       });
     } catch (error) {
-      // Increment login attempts on failure
       if (error.statusCode === 401) {
         const user = await User.findOne({ email: req.body.email });
         if (user) {
           const loginAttempts = (user.loginAttempts || 0) + 1;
           const updates = { loginAttempts };
+          //console.log(updates)
           
           // Lock account after 5 failed attempts
           if (loginAttempts >= 5) {
-            updates.lockUntil = Date.now() + (30 * 60 * 1000); // Lock for 30 minutes
+            updates.lockUntil = Date.now() + (30 * 60 * 1000); 
           }
           
           await User.updateOne({ _id: user._id }, { $set: updates });

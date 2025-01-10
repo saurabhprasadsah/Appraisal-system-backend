@@ -28,9 +28,7 @@ exports.getUser = async (req, res, next) => {
       throw new AppError('User not found', 404);
     }
 
-    // Check if requesting user has permission to view this user
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
-      // Check if the requesting user is a supervisor of this user
       const mapping = await Mapping.findOne({
         participant: req.params.id,
         supervisor: req.user.id
@@ -54,13 +52,11 @@ exports.updateUser = async (req, res, next) => {
   try {
     const { name, email, role, password } = req.body;
 
-    // Build update object
     const updateFields = {};
     if (name) updateFields.name = name;
     if (email) updateFields.email = email;
     if (role) updateFields.role = role;
     
-    // If password is being updated, hash it
     if (password) {
       const salt = await bcrypt.genSalt(10);
       updateFields.password = await bcrypt.hash(password, salt);
@@ -74,7 +70,6 @@ exports.updateUser = async (req, res, next) => {
       }
     }
 
-    // Update user with validation
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updateFields },
@@ -91,7 +86,6 @@ exports.updateUser = async (req, res, next) => {
 
     // If role is changed, update related mappings
     if (role && role !== user.role) {
-      // If changed from supervisor, remove from supervisor mappings
       if (user.role === 'supervisor') {
         await Mapping.updateMany(
           { supervisor: user._id },
@@ -145,7 +139,6 @@ exports.deleteUser = async (req, res, next) => {
       );
     }
 
-    // Remove user from all mappings
     await Mapping.updateMany(
       { supervisor: user._id },
       { $unset: { supervisor: "" } }
@@ -161,10 +154,8 @@ exports.deleteUser = async (req, res, next) => {
       }
     );
 
-    // Delete user's mapping if they are a participant
     await Mapping.deleteOne({ participant: user._id });
 
-    // Finally delete the user
     await user.remove();
 
     res.json({
@@ -176,7 +167,6 @@ exports.deleteUser = async (req, res, next) => {
   }
 };
 
-// Additional utility methods for user management
 
 exports.getUsersByRole = async (req, res, next) => {
   try {
