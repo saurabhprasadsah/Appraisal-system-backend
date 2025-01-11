@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
 
 // Create a new appraisal
-router.post('/', auth, appraisalController.createAppraisal);
+router.post('/', auth,  authorize(['admin', 'supervisor']), appraisalController.createAppraisal);
 
 // Get appraisals for a participant (Admin and Supervisor)
 router.get('/participant/:participantId', auth, authorize(['admin', 'supervisor']), appraisalController.getAppraisalsForParticipant);
