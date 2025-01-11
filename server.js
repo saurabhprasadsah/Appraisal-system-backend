@@ -12,10 +12,10 @@ require('dotenv').config();
 app.use(express.json());
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/mappings', mappingRoutes);
-app.use('/api/questions', questionRoutes);
-app.use('/api/appraisals', appraisalRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/mappings', mappingRoutes);
+app.use('/api/v1/questions', questionRoutes);
+app.use('/api/v1/appraisals', appraisalRoutes);
 
 // Global Error Handler
 app.use(globalErrorHandler);
