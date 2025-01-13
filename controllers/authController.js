@@ -51,6 +51,7 @@ const authController = {
       }
 
       const { email } = req.body;
+      //console.log(email)
       const userExists = await User.findOne({ email });
 
       if (userExists) throw new AppError('User already exists', 400);
