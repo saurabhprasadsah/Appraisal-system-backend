@@ -5,7 +5,9 @@ const toValidateUsers = async (req, res, next) => {
   try {
     const { supervisorId, participantId, peersId, juniorsId } = req.body;
 
-    // Combine all users to validate in one array
+    //console.log(req.body)
+
+    //Combine all users to validate in one array
     const userIdsToValidate = [
       { id: supervisorId, expectedRole: 'supervisor' },
       { id: participantId, expectedRole: 'participant' },
@@ -13,12 +15,12 @@ const toValidateUsers = async (req, res, next) => {
       ...juniorsId.map(id => ({ id, expectedRole: 'junior' })),
     ];
 
-    // Fetch all users in parallel
+    //Fetch all users in parallel
     const users = await Promise.all(
       userIdsToValidate.map(({ id }) => User.findById(id))
     );
 
-    // Validate roles
+    //Validate roles
     users.forEach((user, index) => {
       if (!user) {
         throw new AppError(`User with ID ${userIdsToValidate[index].id} not found`, 404);
@@ -33,7 +35,7 @@ const toValidateUsers = async (req, res, next) => {
       }
     });
 
-    // If validation passes, call the next middleware
+    //If validation passes, call the next middleware
     next();
   } catch (error) {
     next(error);
